@@ -11,6 +11,9 @@ int main(void) {
     kve_map_put(map, "Birth Place", "Leipzig");
     kve_map_put(map, "Death Place", "Hanover");
 
+    char *json = kve_json_serialize(map);
+    printf("%s\n", json);
+
     KVEIterator *iter = kve_iter_create(map);
     while(kve_iter_next(iter))
         printf("%s:\t\t%s\n", kve_iter_key(iter), kve_iter_value(iter));

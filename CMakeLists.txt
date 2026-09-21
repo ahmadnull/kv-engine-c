@@ -42,6 +42,7 @@ add_library(kv_engine_lib
     lib/src/hashmap.c
     lib/src/hashmap_iterator.c
     lib/src/db.c
+    lib/src/json.c
     ${xxhash_SOURCE_DIR}/xxhash.c
 )
 add_library(kv_engine::lib ALIAS kv_engine_lib)

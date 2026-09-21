@@ -2,6 +2,7 @@ default: workflow
 
 preset := "ninja-multi"
 target := "all"
+exe := "kv-engine"
 clean := "0"
 
 release := "0"
@@ -37,8 +38,8 @@ build *args: _clean-hook
     cmake --build --preset {{preset}} --config {{config}} --target {{target}} {{verbose_flag}} {{args}}
 
 # Build and run the kv_engine_app executable
-run *args: (build "--target" "kv_engine_app")
-    {{memcheck_command}} {{memcheck_args}} ./build/{{preset}}/{{config}}/kv-engine {{args}}
+run *args: (build "--target" exe)
+    {{memcheck_command}} {{memcheck_args}} ./build/{{preset}}/{{config}}/{{exe}} {{args}}
 
 # Run unit tests, with Valgrind memcheck when valgrind=1
 test *args: build

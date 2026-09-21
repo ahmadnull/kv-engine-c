@@ -64,8 +64,8 @@ size_t kve_map_size(const KVEHashMap *map);
 size_t kve_map_capacity(const KVEHashMap *map);
 
 /* == Binary Database Functions == */
-bool kve_map_save(const KVEHashMap *map, const char *filepath);
-bool kve_map_load(KVEHashMap *map, const char *filepath);
+bool kve_db_save(const KVEHashMap *map, const char *filepath);
+bool kve_db_load(KVEHashMap *map, const char *filepath);
 
 /*
     Modifying a KVEHashMap while a KVEIterator is active is undefined behavior.

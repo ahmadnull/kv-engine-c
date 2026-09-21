@@ -16,11 +16,11 @@ static void test_save_and_load() {
     assert(kve_map_put(map, "lastname", "Leibniz"));
     assert(kve_map_size(map) == 3);
 
-    assert(kve_map_save(map, TEST_DB_FILE));
+    assert(kve_db_save(map, TEST_DB_FILE));
 
     KVEHashMap *loaded_map = kve_map_create(16);
     assert(loaded_map != NULL);
-    assert(kve_map_load(loaded_map, TEST_DB_FILE));
+    assert(kve_db_load(loaded_map, TEST_DB_FILE));
 
     assert(strcmp((const char *)kve_map_get(loaded_map, "firstname"), "Gottfried") == 0);
     assert(strcmp((const char *)kve_map_get(loaded_map, "middlename"), "Wilhelm") == 0);
@@ -35,7 +35,7 @@ static void test_load_nonexistent_file() {
     KVEHashMap *map = kve_map_create(16);
     assert(map != NULL);
 
-    assert(!kve_map_load(map, TEST_DB_FILE));
+    assert(!kve_db_load(map, TEST_DB_FILE));
 
     kve_map_destroy(map);
 }
@@ -54,7 +54,7 @@ static void test_load_invalid_magic_bytes(void) {
     assert(map != NULL);
 
     // Should fail header validation check
-    assert(kve_map_load(map, CORRUPT_DB_FILE) == false);
+    assert(kve_db_load(map, CORRUPT_DB_FILE) == false);
 
     kve_map_destroy(map);
     remove(CORRUPT_DB_FILE);
@@ -72,7 +72,7 @@ static void test_load_truncated_file(void) {
     assert(map != NULL);
 
     // Should fail due to fread short read
-    assert(!kve_map_load(map, CORRUPT_DB_FILE));
+    assert(!kve_db_load(map, CORRUPT_DB_FILE));
 
     kve_map_destroy(map);
     remove(CORRUPT_DB_FILE);

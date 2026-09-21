@@ -28,14 +28,14 @@ int cmd_put(int argc, const char **argv) {
     argc = argparse_parse(&argparse, argc, argv);
 
     KVEHashMap *engine = kve_map_create(KVE_DEFAULT_CAPACITY);
-    kve_map_load(engine, file);
+    kve_db_load(engine, file);
 
     const char *key = argv[0];
     const char *value = argv[1];
 
     if(!kve_map_put(engine, key, value))
         return 1;
-    if(!kve_map_save(engine, file))
+    if(!kve_db_save(engine, file))
         return 1;
     
     kve_map_destroy(engine);
@@ -61,7 +61,7 @@ int cmd_get(int argc, const char **argv) {
     argc = argparse_parse(&argparse, argc, argv);
 
     KVEHashMap *engine = kve_map_create(KVE_DEFAULT_CAPACITY);
-    if(!kve_map_load(engine, file))
+    if(!kve_db_load(engine, file))
         return 1;
 
     const char *key = argv[0];
@@ -92,14 +92,14 @@ int cmd_rm(int argc, const char **argv) {
     argc = argparse_parse(&argparse, argc, argv);
 
     KVEHashMap *engine = kve_map_create(KVE_DEFAULT_CAPACITY);
-    if(!kve_map_load(engine, file))
+    if(!kve_db_load(engine, file))
         return 1;
 
     const char *key = argv[0];
 
     if(!kve_map_remove(engine, key))
         return 1;
-    if(!kve_map_save(engine, file))
+    if(!kve_db_save(engine, file))
         return 1;
     
     kve_map_destroy(engine);
@@ -125,7 +125,7 @@ int cmd_show(int argc, const char **argv) {
     argc = argparse_parse(&argparse, argc, argv);
 
     KVEHashMap *engine = kve_map_create(KVE_DEFAULT_CAPACITY);
-    if(!kve_map_load(engine, file))
+    if(!kve_db_load(engine, file))
         return 1;
 
     KVEIterator *iter = kve_iter_create(engine);
@@ -161,7 +161,7 @@ int cmd_contains(int argc, const char **argv) {
     argc = argparse_parse(&argparse, argc, argv);
 
     KVEHashMap *engine = kve_map_create(KVE_DEFAULT_CAPACITY);
-    if(!kve_map_load(engine, file))
+    if(!kve_db_load(engine, file))
         return 1;
 
     const char *key = argv[0];

@@ -3,7 +3,7 @@
 #include <string.h>
 #include "kv_engine.h"
 
-bool kve_map_save(const KVEHashMap *map, const char *filepath) {
+bool kve_db_save(const KVEHashMap *map, const char *filepath) {
     if (!(map && filepath))
         return false;
 
@@ -63,7 +63,7 @@ bool kve_map_save(const KVEHashMap *map, const char *filepath) {
     return true;
 }
 
-bool kve_map_load(KVEHashMap *map, const char *filepath) {
+bool kve_db_load(KVEHashMap *map, const char *filepath) {
     if (!(map && filepath))
         return false;
 

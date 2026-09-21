@@ -3,7 +3,7 @@
 #include "kv_engine.h"
 
 int main(void) {
-    printf("\n===\n\n");
+    printf("\n");
 
     KVEHashMap *map = kve_map_create(16);
     kve_map_put(map, "First Name", "Gottfried");

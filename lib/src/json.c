@@ -38,6 +38,13 @@ size_t get_json_size(const KVEHashMap *map, size_t indentation) {
     return size - (indentation > 0 ? 1 : 2); /* Minus 2 (or 1 in case of indentation) since the last item won't have a trailing ',' seperator after it */
 }
 
+enum CurrentReadMode {
+    WAITING_KEY,
+    KEY,
+    WAITING_VALUE,
+    VALUE,
+};
+
 /* == JSON functions == */
 
 char *kve_json_serialize(const KVEHashMap *map, size_t indentation) {
@@ -123,18 +130,118 @@ bool kve_json_save(const KVEHashMap *map, size_t indentation, const char *filepa
     return success;
 }
 
-/* TODO */
 bool kve_json_deserialize(KVEHashMap *map, char *json) {
     if (!(map && json))
         return false;
+
+    size_t len = strlen(json);
+    size_t key_start = 0, key_end = 0, value_start = 0, value_end = 0;
+    #define key_len key_end - key_start
+    #define value_len value_end - value_start
+    enum CurrentReadMode mode = WAITING_KEY;
+    
+    for (size_t i = 1; i < len; i++) {
+        if (json[i] == '"') {
+            switch (mode) {
+                case WAITING_KEY:
+                    mode = KEY;
+                    key_start = i + 1;
+                    key_end = key_start;
+                    continue;
+
+                case KEY:
+                    mode = WAITING_VALUE;
+                    continue;
+
+                case WAITING_VALUE:
+                    mode = VALUE;
+                    value_start = i + 1;
+                    value_end = value_start;
+                    continue;
+
+                case VALUE:
+                    mode = WAITING_KEY;
+                    
+                    char *key = malloc(key_len + 1);
+                    char *value = malloc(value_len + 1);
+
+                    if (!(key && value)) {
+                        free(key);
+                        free(value);
+                        return false;
+                    }
+
+                    memcpy(key, json + key_start, key_len);
+                    key[key_len] = '\0';
+
+                    memcpy(value, json + value_start, value_len);
+                    value[value_len] = '\0';
+
+
+                    kve_map_put(map, key, value);
+
+                    free(key);
+                    free(value);
+
+                    continue;
+            }
+        }
         
-    return false;
+        if (mode == KEY)
+            key_end++;
+
+        if (mode == VALUE)
+            value_end++;
+    }
+        
+    return true;
 }
 
-/* TODO */
 bool kve_json_load(KVEHashMap *map, const char *filepath) {
     if (!(map && filepath))
         return false;
 
-    return false;
+    FILE *fp = fopen(filepath, "rb");
+    if (!fp)
+        return false;
+
+    if (fseek(fp, 0, SEEK_END) != 0) {
+        fclose(fp);
+        return false;
+    }
+
+    long filesize = ftell(fp);
+    if (filesize < 0) {
+        fclose(fp);
+        return false;
+    }
+
+    size_t len = (size_t) filesize;
+    fseek(fp, 0, SEEK_SET);
+
+    char *buf = malloc(len + 1);
+    if(!buf) {
+        fclose(fp);
+        return false;
+    }
+
+    size_t bytes_read = fread(buf, 1, len, fp);
+    fclose(fp);
+
+    /* Verify complete read */
+    if (bytes_read != len) {
+        free(buf);
+        return false;
+    }
+    
+    buf[len] = '\0';
+
+    if(!kve_json_deserialize(map, buf)) {
+        free(buf);
+        return false;
+    }
+    
+    free(buf);
+
+    return true;
 }

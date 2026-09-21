@@ -65,9 +65,9 @@ size_t kve_map_capacity(const KVEHashMap *map);
 
 /* == JSON functions == */
 char *kve_json_serialize(const KVEHashMap *map, size_t indentation);
-bool kve_json_deserialize(KVEHashMap *map, char *json); /* TODO */
-bool kve_json_save(const KVEHashMap *map, size_t indentation, const char *filepath); /* TODO */
-bool kve_json_load(KVEHashMap *map, const char *filepath); /* TODO */
+bool kve_json_deserialize(KVEHashMap *map, char *json);
+bool kve_json_save(const KVEHashMap *map, size_t indentation, const char *filepath);
+bool kve_json_load(KVEHashMap *map, const char *filepath);
 
 /* == Binary Database Functions == */
 bool kve_db_save(const KVEHashMap *map, const char *filepath);

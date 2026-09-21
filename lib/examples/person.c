@@ -17,7 +17,7 @@ int main(void) {
     printf("JSON with no indentation: %s\n\n===\n\n", json_no_indent);
 
     char *json_indent = kve_json_serialize(map, 4);
-    printf("JSON with indentation:\n %s\n\n===\n\n", json_indent);
+    printf("JSON with indentation:\n%s\n\n===\n\n", json_indent);
 
     KVEIterator *iter = kve_iter_create(map);
     while(kve_iter_next(iter))

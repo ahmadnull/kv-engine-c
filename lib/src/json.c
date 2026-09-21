@@ -1,6 +1,7 @@
 #include <stdbool.h>
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
 #include "kv_engine.h"
 
 /* == Helpers == */
@@ -10,7 +11,7 @@ size_t get_json_size(const KVEHashMap *map, size_t indentation) {
         return 0;
 
     size_t size = 3 /* For "{}" and null terminator "\0" */
-                + indentation > 0 ? 1 : 0 /* for newline "\n" after the first parenthesis */
+                + (indentation > 0 ? 1 : 0) /* for newline "\n" after the first parenthesis */
                 ;
 
     if(kve_map_size(map) == 0)
@@ -34,7 +35,7 @@ size_t get_json_size(const KVEHashMap *map, size_t indentation) {
     }
     kve_iter_destroy(iter);
 
-    return size - 2; /* Minus 2 since the last item won't have a trailing (,) seperator after it */
+    return size - (indentation > 0 ? 1 : 2); /* Minus 2 (or 1 in case of indentation) since the last item won't have a trailing ',' seperator after it */
 }
 
 /* == JSON functions == */
@@ -103,6 +104,37 @@ char *kve_json_serialize(const KVEHashMap *map, size_t indentation) {
     return json;
 }
 
-bool kve_json_deserialize(char *json); /* TODO */
-bool kve_json_save(const KVEHashMap *map, const char *filepath); /* TODO */
-bool kve_json_load(KVEHashMap *map, const char *filepath); /* TODO */
+bool kve_json_save(const KVEHashMap *map, size_t indentation, const char *filepath) {
+    if (!(map && filepath))
+        return false;
+
+    char *json = kve_json_serialize(map, indentation);
+
+    FILE *fp = fopen(filepath, "w");
+    if (!fp) {
+        free(json);
+        return false;
+    }
+
+    bool success = (fputs(json, fp) != EOF);
+    fclose(fp);
+    free(json);
+
+    return success;
+}
+
+/* TODO */
+bool kve_json_deserialize(KVEHashMap *map, char *json) {
+    if (!(map && json))
+        return false;
+        
+    return false;
+}
+
+/* TODO */
+bool kve_json_load(KVEHashMap *map, const char *filepath) {
+    if (!(map && filepath))
+        return false;
+
+    return false;
+}

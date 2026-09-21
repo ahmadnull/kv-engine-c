@@ -1,4 +1,5 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include "kv_engine.h"
 
 int main(void) {
@@ -15,9 +16,11 @@ int main(void) {
 
     char *json_no_indent = kve_json_serialize(map, 0);
     printf("JSON with no indentation: %s\n\n===\n\n", json_no_indent);
+    free(json_no_indent);
 
     char *json_indent = kve_json_serialize(map, 4);
     printf("JSON with indentation:\n%s\n\n===\n\n", json_indent);
+    free(json_indent);
 
     KVEIterator *iter = kve_iter_create(map);
     while(kve_iter_next(iter))

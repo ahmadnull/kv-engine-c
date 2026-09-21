@@ -5,11 +5,13 @@
 
 /* == Helpers == */
 
-size_t get_json_size(const KVEHashMap *map) {
+size_t get_json_size(const KVEHashMap *map, size_t indentation) {
     if (!map)
         return 0;
 
-    size_t size = 3; /* For ({}) and null terminator (\0) */
+    size_t size = 3 /* For "{}" and null terminator "\0" */
+                + indentation > 0 ? 1 : 0 /* for newline "\n" after the first parenthesis */
+                ;
 
     if(kve_map_size(map) == 0)
         return size; /* JSON will be just "{}\0" */
@@ -19,14 +21,15 @@ size_t get_json_size(const KVEHashMap *map) {
         const char *key = kve_iter_key(iter);
         const char *value = kve_iter_value(iter);
 
-        size += 1                    /* Opening '"' for key */
+        size += indentation
+              + 1                    /* Opening '"' for key */
               + strlen(key)          /* Key payload */
               + 1                    /* Closing '"' for key */
               + 2                    /* Delimiter ": " */
               + 1                    /* Opening '"' for value */
-              + strlen(value)          /* Value payload */
+              + strlen(value)        /* Value payload */
               + 1                    /* Closing '"' for value */
-              + 2                    /* Separator ", " */
+              + 2                    /* Separator ", " or ",\n" in case of indentation */
               ;
     }
     kve_iter_destroy(iter);
@@ -36,11 +39,11 @@ size_t get_json_size(const KVEHashMap *map) {
 
 /* == JSON functions == */
 
-char *kve_json_serialize(const KVEHashMap *map) {
+char *kve_json_serialize(const KVEHashMap *map, size_t indentation) {
     if (!map)
         return NULL;
 
-    size_t size = get_json_size(map);
+    size_t size = get_json_size(map, indentation);
     if (size < 3)
         return NULL;
 
@@ -50,6 +53,8 @@ char *kve_json_serialize(const KVEHashMap *map) {
 
     char *ptr = json;
     *ptr++ = '{';
+    if (indentation > 0)
+        *ptr++ = '\n';
 
     if (kve_map_size(map) > 0) {
         KVEIterator *iter = kve_iter_create((KVEHashMap *)map);
@@ -59,6 +64,10 @@ char *kve_json_serialize(const KVEHashMap *map) {
         }
 
         while(kve_iter_next(iter)) {
+
+            for(size_t i = 0; i < indentation; i++)
+                *ptr++ = ' ';
+
             const char *key = kve_iter_key(iter);
             const char *value = kve_iter_value(iter);
 
@@ -78,14 +87,16 @@ char *kve_json_serialize(const KVEHashMap *map) {
             *ptr++ = '"';
 
             *ptr++ = ',';
-            *ptr++ = ' ';
+            *ptr++ = indentation > 0 ? '\n' : ' ';
         }
 
         kve_iter_destroy(iter);
 
         ptr -= 2;
     }
-
+    
+    if (indentation > 0)
+        *ptr++ = '\n';
     *ptr++ = '}';
     *ptr = '\0';
 
